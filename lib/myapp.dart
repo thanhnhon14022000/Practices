@@ -5,8 +5,6 @@ import 'trainsection.dart';
 
 //You can define your own Widget
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() {
     return _MyAppState();
@@ -15,14 +13,13 @@ class MyApp extends StatefulWidget {
 
 //This is a "very basic" statefulwidget
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  // ignore: unnecessary_new
-  final GlobalKey<ScaffoldState> _scaffooldKey = GlobalKey<ScaffoldState>();
-  final _contentControler = TextEditingController();
-  final _finalControler = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _contentController = TextEditingController();
+  final _amountController = TextEditingController();
 
-  // ignore: prefer_final_fields, unused_field
+  //define states
   Transaction _transaction = Transaction(content: '', amount: 0.0);
-  List<Transaction> _transactions = [];
+  List<Transaction> _transactions = <Transaction>[];
 
   @override
   void initState() {
@@ -41,61 +38,74 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
         title: "This is a StatefulWidget",
         home: Scaffold(
-            key: _scaffooldKey,
+            key: _scaffoldKey,
             body: SafeArea(
               minimum: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: TextField(
-                      controller: _contentControler,
-                      decoration: const InputDecoration(
-                        labelText: 'Hang can mua',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (text) {
-                        setState(() {
-                          _transaction.content = text;
-                        });
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: TextField(
-                      controller: _finalControler,
-                      decoration: const InputDecoration(
-                        labelText: 'Gia',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (text) {
-                        setState(() {
-                          _transaction.amount = double.tryParse(text) ?? 0;
-                        });
-                      },
-                    ),
-                  ),
-                  FlatButton(
-                    child: const Text("Xin hay nhan nut"),
-                    color: Colors.pinkAccent,
-                    onPressed: () {
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Content'),
+                    controller: _contentController,
+                    onChanged: (text) {
                       setState(() {
-                        _transaction.add(_transaction);
-                        _transaction.content = "";
-                        _transaction.amount = 0.0;
+                        _transaction.content = text;
                       });
-                      _scaffooldKey.currentState!.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'transaction list:'+_transaction.toString()),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-                      // ignore: avoid_print
-                      //print("Ten hang da mua: $_content, So tien: $_amount");
                     },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Amount(money)'),
+                    controller: _amountController,
+                    onChanged: (text) {
+                      setState(() {
+                        _transaction.amount =
+                            double.tryParse(text) ?? 0; //if error, value = 0
+                      });
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  ButtonTheme(
+                    height: 50,
+                    child: FlatButton(
+                      child: Text(
+                        'Insert Transaction',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      color: Colors.pinkAccent,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        //print('Content = $_content, money\'s amount = $_amount');
+                        //Display to UI ?
+                        //Now it must add the "transaction object" to a list of transactions(state)
+                        setState(() {
+                          _transactions.add(_transaction);
+                          _transaction = Transaction(content: '', amount: 0.0);
+                          _contentController.text = '';
+                          _amountController.text = '';
+                        });
+                        //Now I want to display the list below
+                        _scaffoldKey.currentState?.showSnackBar(SnackBar(
+                          content: Text(
+                              'transaction list : ' + _transactions.toString()),
+                          duration: Duration(seconds: 3),
+                        ));
+                      },
+                    ),
+                  ),
+                  Column(
+                    children: _transactions.map((eachTransaction) {
+                      return ListTile(
+                        leading: const Icon(Icons.access_alarm),
+                        title: Text(eachTransaction.content.toString()),
+                        subtitle: Text('Price: ${eachTransaction.amount}'),
+                        onTap: () {
+                          // ignore: avoid_print
+                          print('You clicked: ${eachTransaction.content}');
+                        },
+                      );
+                    }).toList(),
                   )
                 ],
               ),
