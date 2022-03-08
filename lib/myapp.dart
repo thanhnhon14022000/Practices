@@ -35,6 +35,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _buildWidgetList() {
+      int index = 0;
+      return _transactions.map((eachTransaction) {
+        index++;
+        return Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          color: (index-1)%2 ==0 ? Colors.green: Colors.amber,
+          elevation: 10,
+          child: ListTile(
+            leading: const Icon(Icons.access_alarm),
+            title: Text(
+              eachTransaction.content.toString(),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text('Price: ${eachTransaction.amount}'),
+            onTap: () {
+              // ignore: avoid_print
+              print('You clicked: ${eachTransaction.content}');
+            },
+          ),
+        );
+      }).toList();
+    }
+
     return MaterialApp(
         title: "This is a StatefulWidget",
         home: Scaffold(
@@ -95,17 +120,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                     ),
                   ),
                   Column(
-                    children: _transactions.map((eachTransaction) {
-                      return ListTile(
-                        leading: const Icon(Icons.access_alarm),
-                        title: Text(eachTransaction.content.toString()),
-                        subtitle: Text('Price: ${eachTransaction.amount}'),
-                        onTap: () {
-                          // ignore: avoid_print
-                          print('You clicked: ${eachTransaction.content}');
-                        },
-                      );
-                    }).toList(),
+                    children: _buildWidgetList(),
                   )
                 ],
               ),
