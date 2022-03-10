@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'trainsection.dart';
 import 'transactionlist.dart';
+import 'package:intl/intl.dart';
 
 //You can define your own Widget
 class MyApp extends StatefulWidget {
@@ -19,7 +20,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final _amountController = TextEditingController();
 
   //define states
-  Transaction _transaction = Transaction(content: '', amount: 0.0);
+  Transaction _transaction =
+      Transaction(content: '', amount: 0.0, createdDate: DateTime.now());
   final List<Transaction> _transactions = <Transaction>[];
 
   @override
@@ -34,11 +36,48 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance?.removeObserver(this);
   }
 
+  void _insertTrainsection() {
+    if (_transaction.content.isEmpty ||
+        _transaction.amount == 0 ||
+        _transaction.amount.isNaN) {
+      return;
+    }
+    _transaction.createdDate = DateTime.now();
+    _transactions.add(_transaction);
+    _transaction =
+        Transaction(content: '', amount: 0.0, createdDate: DateTime.now());
+    _contentController.text = '';
+    _amountController.text = '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         title: "This is a StatefulWidget",
         home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Transaction manager'),
+              actions: [
+                IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      // ignore: avoid_print
+                      print('Chao mung');
+                      setState(() {
+                        _insertTrainsection();
+                      });
+                    }),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              tooltip: 'add transection',
+              child: Icon(Icons.add),
+              onPressed: () {
+                setState(() {
+                  _insertTrainsection();
+                });
+              },
+            ),
             key: _scaffoldKey,
             body: SafeArea(
               minimum: const EdgeInsets.only(left: 20, right: 20),
@@ -82,23 +121,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                           //Display to UI ?
                           //Now it must add the "transaction object" to a list of transactions(state)
                           setState(() {
-                            _transactions.add(_transaction);
-                            _transaction = Transaction(content: '', amount: 0.0);
-                            _contentController.text = '';
-                            _amountController.text = '';
+                            _insertTrainsection();
                           });
                           //Now I want to display the list below
                           _scaffoldKey.currentState?.showSnackBar(SnackBar(
-                            content: Text(
-                                'transaction list : ' + _transactions.toString()),
+                            content: Text('transaction list : ' +
+                                _transactions.toString()),
                             duration: Duration(seconds: 3),
-                          )
-                          );
+                          ));
                         },
                       ),
                     ),
                     SingleChildScrollView(
-                    child: TransationList(transactions: _transactions),
+                      child: TransationList(transactions: _transactions),
                     )
                   ],
                 ),
