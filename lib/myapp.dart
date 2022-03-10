@@ -97,7 +97,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                         },
                       ),
                     ),
-                    TransationList(transactions: _transactions)
+                    SingleChildScrollView(
+                    child: TransationList(transactions: _transactions),
+                    )
                   ],
                 ),
               ),
